@@ -1,0 +1,1438 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Pengalaman belajar interaktif tentang arsitektur client-server, PHP, dan MySQL untuk pemula." />
+    <title>Mengenal Dunia Web: Di Balik Layar Sebuah Website</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet" />
+
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script src="https://unpkg.com/@babel/standalone@7.28.4/babel.min.js"></script>
+
+    <script type="importmap">
+    {
+        "imports": {
+            "react": "https://esm.sh/react@18.3.1",
+            "react-dom/client": "https://esm.sh/react-dom@18.3.1/client?external=react",
+            "lucide-react": "https://esm.sh/lucide-react@0.468.0?external=react"
+        }
+    }
+    </script>
+
+    <style>
+        :root {
+            color-scheme: light;
+            font-family: "Manrope", system-ui, sans-serif;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            scroll-padding-top: 92px;
+        }
+
+        body {
+            margin: 0;
+            min-width: 320px;
+            color: #243145;
+            background:
+                radial-gradient(circle at 8% 12%, rgba(186, 230, 253, 0.52), transparent 25rem),
+                radial-gradient(circle at 92% 38%, rgba(221, 214, 254, 0.48), transparent 28rem),
+                #f8fafc;
+        }
+
+        button, a {
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        ::selection {
+            color: #172554;
+            background: #bae6fd;
+        }
+
+        .pola-titik {
+            background-image: radial-gradient(rgba(51, 65, 85, 0.12) 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+
+        .kartu-mengambang {
+            animation: mengambang 4.5s ease-in-out infinite;
+        }
+
+        .kartu-mengambang-terlambat {
+            animation: mengambang 4.5s ease-in-out 1.1s infinite;
+        }
+
+        .koki-memasak {
+            animation: memasak 0.55s ease-in-out infinite alternate;
+        }
+
+        .bahan-aktif {
+            animation: bahanMelompat 0.7s ease-in-out infinite alternate;
+        }
+
+        .kilau {
+            animation: kilau 1.4s ease-in-out infinite;
+        }
+
+        .panah-bergerak {
+            animation: panahBergerak 1s ease-in-out infinite;
+        }
+
+        .guncang {
+            animation: guncang 0.36s ease-in-out;
+        }
+
+        /* Kartu ini berpindah posisi sesuai tahap simulasi. Transisi CSS membuat
+           pesanan, data, dan hasil tampak berjalan di antara tiga area restoran. */
+        .paket-animasi {
+            position: absolute;
+            z-index: 30;
+            top: 46%;
+            left: 17%;
+            transform: translate(-50%, -50%);
+            transition: left 1.05s cubic-bezier(.22, 1, .36, 1), top 1.05s cubic-bezier(.22, 1, .36, 1), opacity .25s ease;
+        }
+
+        .paket-tahap-0 { opacity: 0; }
+        .paket-tahap-1 { left: 47%; opacity: 1; }
+        .paket-tahap-2 { left: 50%; opacity: 1; }
+        .paket-tahap-3 { left: 83%; opacity: 1; }
+        .paket-tahap-4 { left: 17%; opacity: 1; }
+
+        .konfeti {
+            position: absolute;
+            top: -18px;
+            width: 10px;
+            height: 18px;
+            border-radius: 3px;
+            animation: konfetiJatuh 2.8s ease-out forwards;
+        }
+
+        @keyframes mengambang {
+            0%, 100% { transform: translateY(0) rotate(-1deg); }
+            50% { transform: translateY(-10px) rotate(1deg); }
+        }
+
+        @keyframes memasak {
+            from { transform: rotate(-7deg) translateY(0); }
+            to { transform: rotate(7deg) translateY(-4px); }
+        }
+
+        @keyframes bahanMelompat {
+            from { transform: translateY(0) scale(1); }
+            to { transform: translateY(-8px) scale(1.07); }
+        }
+
+        @keyframes kilau {
+            0%, 100% { opacity: .35; transform: scale(.85) rotate(0deg); }
+            50% { opacity: 1; transform: scale(1.15) rotate(12deg); }
+        }
+
+        @keyframes panahBergerak {
+            0%, 100% { transform: translateX(0); opacity: .5; }
+            50% { transform: translateX(7px); opacity: 1; }
+        }
+
+        @keyframes guncang {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-7px); }
+            75% { transform: translateX(7px); }
+        }
+
+        @keyframes konfetiJatuh {
+            0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(540px) rotate(760deg); opacity: 0; }
+        }
+
+        @media (max-width: 767px) {
+            .paket-animasi {
+                left: 50%;
+                top: 14%;
+                transition: top 1.05s cubic-bezier(.22, 1, .36, 1), opacity .25s ease;
+            }
+
+            .paket-tahap-1 { left: 50%; top: 34%; }
+            .paket-tahap-2 { left: 50%; top: 49%; }
+            .paket-tahap-3 { left: 50%; top: 77%; }
+            .paket-tahap-4 { left: 50%; top: 14%; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            html { scroll-behavior: auto; }
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                scroll-behavior: auto !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel" data-type="module">
+        import React, { useEffect, useMemo, useRef, useState } from "react";
+        import { createRoot } from "react-dom/client";
+        import {
+            ArrowDown, ArrowRight, BookOpen, Check, CheckCircle2, ChefHat,
+            ChevronRight, Code2, Database, FolderOpen, Globe2, HelpCircle,
+            Lightbulb, Menu, MousePointerClick, Play, RotateCcw, Salad,
+            Search, Send, Server, Sparkles, Undo2, UserRound, Utensils, X,
+            XCircle
+        } from "lucide-react";
+
+        const LANGKAH_SIMULASI = [
+            {
+                judul: "Pelanggan memesan",
+                ringkas: "Browser mengirim permintaan",
+                penjelasan: "Pelanggan memilih menu. Di dunia web, klik ini sama seperti Browser meminta sebuah halaman.",
+                warna: "bg-sky-500"
+            },
+            {
+                judul: "Koki mulai bekerja",
+                ringkas: "PHP memproses logika",
+                penjelasan: "Pesanan tiba di dapur. PHP membaca permintaan dan menentukan data apa yang dibutuhkan.",
+                warna: "bg-violet-500"
+            },
+            {
+                judul: "Mengambil bahan",
+                ringkas: "MySQL mengirim data",
+                penjelasan: "PHP bertanya kepada MySQL. Gudang mencari data yang tepat lalu menyerahkannya kepada PHP.",
+                warna: "bg-amber-500"
+            },
+            {
+                judul: "Hidangan disajikan",
+                ringkas: "Browser menampilkan HTML",
+                penjelasan: "PHP menyusun hasil menjadi HTML. Browser menerimanya dan menampilkan halaman yang bisa dilihat pengguna.",
+                warna: "bg-emerald-500"
+            }
+        ];
+
+        const KONSEP = [
+            {
+                id: "html",
+                judul: "HTML & CSS",
+                subjudul: "Tampilan di Browser",
+                ikon: Globe2,
+                warnaIkon: "bg-sky-100 text-sky-700",
+                warnaBingkai: "border-sky-200",
+                analogi: "Ruang Makan & Dekorasi",
+                deskripsi: "HTML menyusun meja, kursi, dan piring. CSS memberi warna serta dekorasi agar semuanya nyaman dilihat.",
+                poin: ["Terlihat langsung oleh pengguna", "Menentukan struktur dan penampilan"],
+                kode: (
+                    <>
+                        <span className="text-sky-300">&lt;div</span> <span className="text-amber-300">class=</span><span className="text-emerald-300">&quot;kartu&quot;</span><span className="text-sky-300">&gt;</span>{"\n"}
+                        {"  "}<span className="text-slate-100">Halo!</span>{"\n"}
+                        <span className="text-sky-300">&lt;/div&gt;</span>{"\n\n"}
+                        <span className="text-violet-300">.kartu</span> <span className="text-slate-100">{"{"}</span>{"\n"}
+                        {"  "}<span className="text-sky-300">color</span><span className="text-slate-100">: </span><span className="text-amber-300">blue</span><span className="text-slate-100">;</span>{"\n"}
+                        <span className="text-slate-100">{"}"}</span>
+                    </>
+                ),
+                artiKode: "Browser membuat kotak bertuliskan “Halo!” lalu memberi warna biru."
+            },
+            {
+                id: "php",
+                judul: "PHP",
+                subjudul: "Logika di Server",
+                ikon: ChefHat,
+                warnaIkon: "bg-violet-100 text-violet-700",
+                warnaBingkai: "border-violet-200",
+                analogi: "Koki Dapur",
+                deskripsi: "PHP menerima pesanan, menjalankan aturan, meminta data, lalu menyiapkan hasil sebelum dikirim ke Browser.",
+                poin: ["Bekerja di komputer Server", "Kode PHP tidak terlihat oleh pengguna"],
+                kode: (
+                    <>
+                        <span className="text-pink-300">&lt;?php</span>{"\n"}
+                        {"  "}<span className="text-violet-300">echo</span> <span className="text-emerald-300">&quot;Halo&quot;</span><span className="text-slate-100">;</span>{"\n"}
+                        <span className="text-pink-300">?&gt;</span>
+                    </>
+                ),
+                artiKode: "PHP meminta Server menghasilkan tulisan “Halo”."
+            },
+            {
+                id: "mysql",
+                judul: "MySQL",
+                subjudul: "Penyimpanan Data",
+                ikon: Database,
+                warnaIkon: "bg-amber-100 text-amber-700",
+                warnaBingkai: "border-amber-200",
+                analogi: "Gudang Bahan",
+                deskripsi: "MySQL menyimpan data secara rapi. PHP dapat meminta data menu, pengguna, nilai, atau transaksi kapan saja.",
+                poin: ["Data tersusun dalam tabel", "Data tetap tersimpan setelah halaman ditutup"],
+                kode: (
+                    <>
+                        <span className="text-violet-300">SELECT</span> <span className="text-sky-300">nama_menu</span>{"\n"}
+                        <span className="text-violet-300">FROM</span> <span className="text-amber-300">menu</span><span className="text-slate-100">;</span>
+                    </>
+                ),
+                artiKode: "MySQL diminta mengambil semua nama makanan dari tabel menu."
+            }
+        ];
+
+        const STUDI_KASUS_PHP = [
+            {
+                nomor: "01",
+                tingkat: "Sangat Mudah",
+                warna: "sky",
+                judul: "Kartu Sapaan Mahasiswa",
+                konsep: "Variabel, teks, dan echo",
+                cerita: "Bagian akademik ingin membuat kartu sambutan sederhana untuk mahasiswa yang baru masuk ke portal kampus.",
+                tujuan: "Buat halaman yang menampilkan nama, program studi, semester, dan kota asal menggunakan variabel PHP.",
+                namaFile: "sapaan.php",
+                langkah: [
+                    "Ubah isi variabel $nama, $programStudi, dan $semester sesuai data kamu.",
+                    "Tambahkan variabel baru bernama $kotaAsal.",
+                    "Tampilkan semua data ke dalam kartu menggunakan echo."
+                ],
+                petunjuk: [
+                    "Setiap variabel PHP selalu diawali simbol $.",
+                    "Gunakan tanda titik (.) untuk menggabungkan teks dan variabel.",
+                    "Akhiri setiap perintah PHP dengan titik koma (;)."
+                ],
+                keluaran: "Halo, saya Alya dari Teknik Informatika, semester 3. Saya berasal dari Bandung.",
+                kodeAwal: `<?php
+$nama = "Alya";
+$programStudi = "Teknik Informatika";
+$semester = 3;
+
+// TUGAS: Tambahkan variabel kota asal di sini.
+?>
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Kartu Sapaan</title>
+</head>
+<body>
+    <h1>Kartu Mahasiswa</h1>
+    <p>
+        <?php
+        echo "Halo, saya " . $nama;
+        echo " dari " . $programStudi;
+        echo ", semester " . $semester . ".";
+        // TUGAS: Tampilkan kota asal di sini.
+        ?>
+    </p>
+</body>
+</html>`,
+                solusi: `<?php
+$nama = "Alya";
+$programStudi = "Teknik Informatika";
+$semester = 3;
+$kotaAsal = "Bandung";
+?>
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Kartu Sapaan</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #f0f9ff; }
+        .kartu { max-width: 500px; margin: 60px auto; padding: 24px; background: white; border-radius: 16px; box-shadow: 0 8px 24px #bae6fd; }
+    </style>
+</head>
+<body>
+    <div class="kartu">
+        <h1>Kartu Mahasiswa</h1>
+        <p>
+            <?php
+            echo "Halo, saya " . $nama;
+            echo " dari " . $programStudi;
+            echo ", semester " . $semester . ". ";
+            echo "Saya berasal dari " . $kotaAsal . ".";
+            ?>
+        </p>
+    </div>
+</body>
+</html>`
+            },
+            {
+                nomor: "02",
+                tingkat: "Mudah",
+                warna: "violet",
+                judul: "Pemeriksa Kelulusan",
+                konsep: "Form POST dan if-else",
+                cerita: "Seorang dosen membutuhkan halaman kecil untuk menentukan apakah nilai mahasiswa termasuk lulus atau perlu belajar lagi.",
+                tujuan: "Terima nilai dari formulir. Tampilkan “Lulus” jika nilai minimal 70 dan “Belum Lulus” jika kurang dari 70.",
+                namaFile: "kelulusan.php",
+                langkah: [
+                    "Ambil nilai dari formulir menggunakan $_POST.",
+                    "Ubah nilai menjadi bilangan bulat dengan (int).",
+                    "Gunakan if-else untuk menentukan pesan kelulusan."
+                ],
+                petunjuk: [
+                    "Periksa pengiriman formulir dengan isset($_POST['nilai']).",
+                    "Gunakan kondisi $nilai >= 70.",
+                    "Simpan kalimat hasil ke variabel $hasil agar mudah ditampilkan."
+                ],
+                keluaran: "Jika pengguna memasukkan 82, halaman menampilkan: Nilai 82 — Lulus!",
+                kodeAwal: `<?php
+$hasil = "Belum ada nilai yang diperiksa.";
+
+if (isset($_POST["nilai"])) {
+    $nilai = (int) $_POST["nilai"];
+
+    // TUGAS: Buat percabangan if-else di sini.
+    $hasil = "Nilai yang dimasukkan: " . $nilai;
+}
+?>
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Pemeriksa Kelulusan</title>
+</head>
+<body>
+    <h1>Pemeriksa Kelulusan</h1>
+    <form method="POST">
+        <label for="nilai">Masukkan nilai:</label>
+        <input id="nilai" name="nilai" type="number" min="0" max="100" required>
+        <button type="submit">Periksa Nilai</button>
+    </form>
+    <p><?php echo $hasil; ?></p>
+</body>
+</html>`,
+                solusi: `<?php
+$hasil = "Belum ada nilai yang diperiksa.";
+$warna = "#475569";
+
+if (isset($_POST["nilai"])) {
+    $nilai = (int) $_POST["nilai"];
+
+    if ($nilai >= 70) {
+        $hasil = "Nilai " . $nilai . " — Lulus!";
+        $warna = "#047857";
+    } else {
+        $hasil = "Nilai " . $nilai . " — Belum Lulus.";
+        $warna = "#be123c";
+    }
+}
+?>
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Pemeriksa Kelulusan</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 520px; margin: 50px auto; padding: 20px; }
+        form { display: grid; gap: 12px; }
+        input, button { padding: 12px; font-size: 16px; }
+        .hasil { padding: 16px; background: #f8fafc; border-radius: 12px; color: <?php echo $warna; ?>; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h1>Pemeriksa Kelulusan</h1>
+    <form method="POST">
+        <label for="nilai">Masukkan nilai:</label>
+        <input id="nilai" name="nilai" type="number" min="0" max="100" required>
+        <button type="submit">Periksa Nilai</button>
+    </form>
+    <p class="hasil"><?php echo $hasil; ?></p>
+</body>
+</html>`
+            },
+            {
+                nomor: "03",
+                tingkat: "Mulai Menantang",
+                warna: "emerald",
+                judul: "Kalkulator Diskon Kantin",
+                konsep: "Input, hitungan, dan percabangan",
+                cerita: "Kantin kampus memberikan diskon 10% untuk total belanja minimal Rp100.000. Kasir membutuhkan penghitung otomatis.",
+                tujuan: "Hitung nominal diskon dan total pembayaran berdasarkan angka yang dimasukkan pengguna.",
+                namaFile: "diskon.php",
+                langkah: [
+                    "Terima total belanja melalui formulir POST.",
+                    "Jika total minimal 100000, hitung diskon sebesar 10%.",
+                    "Tampilkan total awal, nominal diskon, dan total akhir dalam format Rupiah."
+                ],
+                petunjuk: [
+                    "Nilai diskon dapat dihitung dengan $total * 0.10.",
+                    "Total akhir adalah $total - $diskon.",
+                    "Gunakan number_format($angka, 0, ',', '.') agar angka mudah dibaca."
+                ],
+                keluaran: "Belanja Rp150.000 menghasilkan diskon Rp15.000 dan total bayar Rp135.000.",
+                kodeAwal: `<?php
+$total = 0;
+$diskon = 0;
+$totalBayar = 0;
+
+if (isset($_POST["total"])) {
+    $total = (float) $_POST["total"];
+
+    // TUGAS: Tentukan diskon dengan if-else.
+    // TUGAS: Hitung total yang harus dibayar.
+}
+?>
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Kalkulator Diskon</title>
+</head>
+<body>
+    <h1>Kalkulator Diskon Kantin</h1>
+    <form method="POST">
+        <label for="total">Total belanja:</label>
+        <input id="total" name="total" type="number" min="0" required>
+        <button type="submit">Hitung Diskon</button>
+    </form>
+
+    <!-- TUGAS: Tampilkan hasil perhitungan di sini. -->
+</body>
+</html>`,
+                solusi: `<?php
+$total = 0;
+$diskon = 0;
+$totalBayar = 0;
+$sudahDihitung = false;
+
+if (isset($_POST["total"])) {
+    $total = (float) $_POST["total"];
+
+    if ($total >= 100000) {
+        $diskon = $total * 0.10;
+    } else {
+        $diskon = 0;
+    }
+
+    $totalBayar = $total - $diskon;
+    $sudahDihitung = true;
+}
+?>
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Kalkulator Diskon</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #ecfdf5; }
+        .kotak { max-width: 520px; margin: 50px auto; padding: 24px; background: white; border-radius: 16px; }
+        form { display: grid; gap: 12px; }
+        input, button { padding: 12px; font-size: 16px; }
+        .hasil { margin-top: 20px; padding: 16px; background: #d1fae5; border-radius: 12px; }
+    </style>
+</head>
+<body>
+    <div class="kotak">
+        <h1>Kalkulator Diskon Kantin</h1>
+        <form method="POST">
+            <label for="total">Total belanja:</label>
+            <input id="total" name="total" type="number" min="0" required>
+            <button type="submit">Hitung Diskon</button>
+        </form>
+
+        <?php if ($sudahDihitung) { ?>
+            <div class="hasil">
+                <p>Total belanja: Rp<?php echo number_format($total, 0, ',', '.'); ?></p>
+                <p>Diskon: Rp<?php echo number_format($diskon, 0, ',', '.'); ?></p>
+                <strong>Total bayar: Rp<?php echo number_format($totalBayar, 0, ',', '.'); ?></strong>
+            </div>
+        <?php } ?>
+    </div>
+</body>
+</html>`
+            }
+        ];
+
+        function JudulBagian({ nomor, label, judul, deskripsi }) {
+            return (
+                <div className="mx-auto mb-10 max-w-3xl text-center md:mb-14">
+                    <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-sm font-bold text-slate-600 shadow-sm">
+                        <span className="grid h-6 w-6 place-items-center rounded-full bg-slate-900 text-xs text-white">{nomor}</span>
+                        {label}
+                    </div>
+                    <h2 className="text-3xl font-extrabold tracking-tight text-slate-900 md:text-4xl">{judul}</h2>
+                    <p className="mt-4 text-base leading-7 text-slate-600 md:text-lg">{deskripsi}</p>
+                </div>
+            );
+        }
+
+        function Navigasi() {
+            const [terbuka, setTerbuka] = useState(false);
+            const menu = [
+                ["#visualisasi", "Simulasi Restoran"],
+                ["#pekerja", "Kenalan Pekerja"],
+                ["#mysql", "Mengapa MySQL?"],
+                ["#praktik", "Praktik PHP"],
+                ["#kuis", "Mini Kuis"]
+            ];
+
+            return (
+                <header className="fixed inset-x-0 top-0 z-50 border-b border-slate-200/80 bg-white/85 backdrop-blur-xl">
+                    <nav className="mx-auto flex h-18 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8" aria-label="Navigasi utama">
+                        <a href="#awal" className="flex items-center gap-3 font-extrabold text-slate-900">
+                            <span className="grid h-10 w-10 place-items-center rounded-2xl bg-gradient-to-br from-sky-500 to-violet-500 text-white shadow-lg shadow-sky-200">
+                                <Code2 size={21} aria-hidden="true" />
+                            </span>
+                            <span className="hidden sm:block">Web Itu Mudah</span>
+                        </a>
+
+                        <div className="hidden items-center gap-1 md:flex">
+                            {menu.map(([tujuan, teks]) => (
+                                <a key={tujuan} href={tujuan} className="rounded-xl px-4 py-2 text-sm font-bold text-slate-600 transition hover:bg-sky-50 hover:text-sky-700">
+                                    {teks}
+                                </a>
+                            ))}
+                        </div>
+
+                        <a href="#visualisasi" className="hidden items-center gap-2 rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-bold text-white shadow-lg transition hover:-translate-y-0.5 hover:bg-sky-700 md:flex">
+                            Mulai Belajar <ArrowRight size={16} aria-hidden="true" />
+                        </a>
+
+                        <button
+                            type="button"
+                            className="grid h-11 w-11 place-items-center rounded-xl border border-slate-200 bg-white text-slate-700 md:hidden"
+                            onClick={() => setTerbuka(!terbuka)}
+                            aria-expanded={terbuka}
+                            aria-label={terbuka ? "Tutup menu" : "Buka menu"}
+                        >
+                            {terbuka ? <X size={21} /> : <Menu size={21} />}
+                        </button>
+                    </nav>
+
+                    {terbuka && (
+                        <div className="border-t border-slate-100 bg-white p-4 shadow-xl md:hidden">
+                            <div className="mx-auto grid max-w-7xl gap-1">
+                                {menu.map(([tujuan, teks]) => (
+                                    <a key={tujuan} href={tujuan} onClick={() => setTerbuka(false)} className="rounded-xl px-4 py-3 font-bold text-slate-700 hover:bg-sky-50">
+                                        {teks}
+                                    </a>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+                </header>
+            );
+        }
+
+        function Hero() {
+            return (
+                <section id="awal" className="relative overflow-hidden px-4 pb-20 pt-32 sm:px-6 md:pb-28 md:pt-40 lg:px-8">
+                    <div className="pointer-events-none absolute inset-0 pola-titik opacity-50" aria-hidden="true" />
+                    <div className="pointer-events-none absolute left-[8%] top-32 h-44 w-44 rounded-full bg-sky-200/50 blur-3xl" aria-hidden="true" />
+                    <div className="pointer-events-none absolute right-[7%] top-48 h-56 w-56 rounded-full bg-violet-200/50 blur-3xl" aria-hidden="true" />
+
+                    <div className="relative mx-auto max-w-5xl text-center">
+                        <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-sky-200 bg-sky-50 px-4 py-2 text-sm font-extrabold text-sky-700 shadow-sm">
+                            <Sparkles size={17} aria-hidden="true" />
+                            Mulai dari nol, pelan-pelan, dan tanpa takut
+                        </div>
+                        <h1 className="text-4xl font-extrabold leading-tight tracking-[-0.04em] text-slate-950 sm:text-5xl md:text-7xl">
+                            Mengenal Dunia Web:
+                            <span className="block bg-gradient-to-r from-sky-600 via-violet-600 to-emerald-600 bg-clip-text text-transparent">
+                                Di Balik Layar Sebuah Website
+                            </span>
+                        </h1>
+                        <p className="mx-auto mt-7 max-w-2xl text-lg leading-8 text-slate-600 md:text-xl">
+                            Pernah penasaran apa yang terjadi setelah sebuah tombol diklik? Mari memahaminya melalui cerita restoran yang sederhana.
+                        </p>
+                        <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row">
+                            <a href="#visualisasi" className="group flex w-full items-center justify-center gap-2 rounded-2xl bg-sky-600 px-6 py-4 font-extrabold text-white shadow-xl shadow-sky-200 transition hover:-translate-y-1 hover:bg-sky-700 sm:w-auto">
+                                <Play size={19} fill="currentColor" aria-hidden="true" />
+                                Coba Simulasi
+                            </a>
+                            <a href="#pekerja" className="flex w-full items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-6 py-4 font-extrabold text-slate-700 shadow-sm transition hover:-translate-y-1 hover:border-violet-200 hover:text-violet-700 sm:w-auto">
+                                <BookOpen size={19} aria-hidden="true" />
+                                Kenali Setiap Bagian
+                            </a>
+                        </div>
+
+                        <div className="mx-auto mt-14 grid max-w-3xl grid-cols-3 gap-3 sm:gap-5" aria-label="Ringkasan alur web">
+                            {[
+                                [Globe2, "Browser", "meminta"],
+                                [Server, "PHP", "memproses"],
+                                [Database, "MySQL", "menyimpan"]
+                            ].map(([Ikon, nama, kerja], indeks) => (
+                                <div key={nama} className={`${indeks === 1 ? "kartu-mengambang-terlambat" : "kartu-mengambang"} rounded-2xl border border-white/70 bg-white/80 p-4 shadow-lg backdrop-blur sm:p-5`}>
+                                    <Ikon className="mx-auto text-sky-600" size={26} aria-hidden="true" />
+                                    <strong className="mt-2 block text-sm text-slate-900 sm:text-base">{nama}</strong>
+                                    <span className="text-xs text-slate-500 sm:text-sm">{kerja}</span>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </section>
+            );
+        }
+
+        function SimulasiRestoran() {
+            const [tahap, setTahap] = useState(0);
+            const [berjalan, setBerjalan] = useState(false);
+            const pewaktu = useRef([]);
+
+            useEffect(() => () => pewaktu.current.forEach(clearTimeout), []);
+
+            function mulaiSimulasi() {
+                pewaktu.current.forEach(clearTimeout);
+                setBerjalan(true);
+                setTahap(1);
+
+                // Setiap pewaktu mengaktifkan tahap berikutnya. Perubahan kelas pada
+                // paket membuat transisi pesanan berjalan tanpa pustaka animasi tambahan.
+                pewaktu.current = [
+                    setTimeout(() => setTahap(2), 1350),
+                    setTimeout(() => setTahap(3), 2850),
+                    setTimeout(() => setTahap(4), 4550),
+                    setTimeout(() => setBerjalan(false), 5700)
+                ];
+            }
+
+            const keterangan = tahap === 0
+                ? "Klik tombol untuk melihat perjalanan sebuah permintaan web."
+                : LANGKAH_SIMULASI[tahap - 1].penjelasan;
+
+            const isiPaket = tahap === 4 ? "HTML Siap" : tahap === 3 ? "Data" : "Pesanan";
+
+            return (
+                <section id="visualisasi" className="border-y border-sky-100 bg-white/75 px-4 py-20 sm:px-6 md:py-28 lg:px-8">
+                    <div className="mx-auto max-w-7xl">
+                        <JudulBagian
+                            nomor="1"
+                            label="Visualisasi Interaktif"
+                            judul="Bayangkan Website sebagai Restoran"
+                            deskripsi="Klik tombol simulasi. Perhatikan bagaimana pesanan bergerak dari pelanggan, diproses di dapur, mengambil bahan di gudang, lalu kembali sebagai hidangan."
+                        />
+
+                        <div className="overflow-hidden rounded-[2rem] border border-slate-200 bg-slate-50 shadow-2xl shadow-slate-200/60">
+                            <div className="flex flex-col gap-4 border-b border-slate-200 bg-white px-5 py-5 sm:flex-row sm:items-center sm:justify-between md:px-8">
+                                <div>
+                                    <p className="text-sm font-bold text-sky-700">Restoran Web Bahagia</p>
+                                    <h3 className="text-xl font-extrabold text-slate-900">Lihat perjalanan pesananmu</h3>
+                                </div>
+                                <button
+                                    type="button"
+                                    onClick={mulaiSimulasi}
+                                    disabled={berjalan}
+                                    className="inline-flex items-center justify-center gap-2 rounded-2xl bg-slate-900 px-5 py-3.5 font-extrabold text-white shadow-lg transition hover:-translate-y-0.5 hover:bg-sky-700 disabled:cursor-not-allowed disabled:bg-slate-400"
+                                >
+                                    {berjalan ? <Utensils className="koki-memasak" size={19} /> : tahap === 4 ? <RotateCcw size={19} /> : <Play size={19} fill="currentColor" />}
+                                    {berjalan ? "Proses Sedang Berjalan..." : tahap === 4 ? "Ulangi Simulasi" : "Simulasikan Proses"}
+                                </button>
+                            </div>
+
+                            <div className="relative min-h-[760px] p-5 md:min-h-[390px] md:p-8">
+                                <div className={`paket-animasi paket-tahap-${tahap}`} aria-hidden="true">
+                                    <div className={`${tahap === 4 ? "bg-emerald-600" : tahap === 3 ? "bg-amber-500" : "bg-sky-600"} flex items-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-xs font-extrabold text-white shadow-xl ring-4 ring-white`}>
+                                        {tahap === 4 ? <Utensils size={15} /> : tahap === 3 ? <Database size={15} /> : <Send size={15} />}
+                                        {isiPaket}
+                                    </div>
+                                </div>
+
+                                <div className="grid gap-5 md:grid-cols-3 md:gap-7">
+                                    <AreaRestoran
+                                        aktif={tahap === 1 || tahap === 4}
+                                        warna="sky"
+                                        ikon={UserRound}
+                                        label="LANGKAH 1 & 4"
+                                        judul="Meja Pelanggan"
+                                        padanan="Browser / HTML"
+                                        deskripsi={tahap === 4 ? "Hidangan sudah tiba dan siap dilihat!" : "Pelanggan melihat menu dan membuat permintaan."}
+                                    >
+                                        {tahap === 4 ? (
+                                            <div className="kilau mt-5 flex items-center justify-center gap-2 rounded-2xl bg-emerald-100 px-4 py-3 font-bold text-emerald-800">
+                                                <Salad size={22} /> Halaman tampil!
+                                            </div>
+                                        ) : (
+                                            <button type="button" onClick={mulaiSimulasi} disabled={berjalan} className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-sky-600 px-4 py-3 text-sm font-extrabold text-white transition hover:bg-sky-700 disabled:cursor-not-allowed disabled:bg-slate-300">
+                                                <Utensils size={17} /> Pesan Makanan
+                                            </button>
+                                        )}
+                                    </AreaRestoran>
+
+                                    <AreaRestoran
+                                        aktif={tahap === 2}
+                                        warna="violet"
+                                        ikon={ChefHat}
+                                        label="LANGKAH 2"
+                                        judul="Dapur"
+                                        padanan="Server / PHP"
+                                        deskripsi="Koki membaca pesanan dan menjalankan aturan."
+                                    >
+                                        <div className="mt-5 flex h-12 items-center justify-center gap-2 rounded-2xl bg-violet-100 text-sm font-bold text-violet-800">
+                                            <ChefHat className={tahap === 2 ? "koki-memasak" : ""} size={22} />
+                                            {tahap === 2 ? "Sedang memasak logika..." : "Koki siap bekerja"}
+                                        </div>
+                                    </AreaRestoran>
+
+                                    <AreaRestoran
+                                        aktif={tahap === 3}
+                                        warna="amber"
+                                        ikon={Database}
+                                        label="LANGKAH 3"
+                                        judul="Gudang Bahan"
+                                        padanan="Database / MySQL"
+                                        deskripsi="Bahan tersimpan rapi dan dapat dicari dengan cepat."
+                                    >
+                                        <div className="mt-5 grid grid-cols-3 gap-2" aria-label="Bahan makanan">
+                                            {["🍅", "🥬", "🧀"].map((bahan, indeks) => (
+                                                <span key={bahan} className={`${tahap === 3 ? "bahan-aktif" : ""} grid h-12 place-items-center rounded-xl bg-amber-100 text-xl`} style={{ animationDelay: `${indeks * 120}ms` }}>{bahan}</span>
+                                            ))}
+                                        </div>
+                                    </AreaRestoran>
+                                </div>
+                            </div>
+
+                            <div className="border-t border-slate-200 bg-white p-5 md:p-8">
+                                <div className="mb-6 flex min-h-24 items-start gap-4 rounded-2xl border border-sky-100 bg-sky-50 p-4 md:items-center md:p-5" aria-live="polite">
+                                    <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-sky-600 font-extrabold text-white">{tahap || "?"}</span>
+                                    <div>
+                                        <strong className="block text-slate-900">{tahap ? LANGKAH_SIMULASI[tahap - 1].judul : "Siap memulai?"}</strong>
+                                        <p className="mt-1 text-sm leading-6 text-slate-600">{keterangan}</p>
+                                    </div>
+                                </div>
+
+                                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                                    {LANGKAH_SIMULASI.map((item, indeks) => {
+                                        const nomor = indeks + 1;
+                                        const selesai = tahap > nomor;
+                                        const aktif = tahap === nomor;
+                                        return (
+                                            <div key={item.judul} className={`${aktif ? "border-sky-300 bg-sky-50 shadow-md" : selesai ? "border-emerald-200 bg-emerald-50" : "border-slate-200 bg-white"} rounded-2xl border p-4 transition-all`}>
+                                                <div className="flex items-center gap-3">
+                                                    <span className={`${aktif ? item.warna : selesai ? "bg-emerald-500" : "bg-slate-200 text-slate-500"} grid h-8 w-8 shrink-0 place-items-center rounded-full text-xs font-extrabold text-white`}>
+                                                        {selesai ? <Check size={16} /> : nomor}
+                                                    </span>
+                                                    <span className="text-sm font-extrabold text-slate-800">{item.judul}</span>
+                                                </div>
+                                                <p className="mt-2 pl-11 text-xs leading-5 text-slate-500">{item.ringkas}</p>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            );
+        }
+
+        function AreaRestoran({ aktif, warna, ikon: Ikon, label, judul, padanan, deskripsi, children }) {
+            const gaya = {
+                sky: aktif ? "border-sky-400 bg-sky-50 ring-sky-100" : "border-sky-200 bg-white",
+                violet: aktif ? "border-violet-400 bg-violet-50 ring-violet-100" : "border-violet-200 bg-white",
+                amber: aktif ? "border-amber-400 bg-amber-50 ring-amber-100" : "border-amber-200 bg-white"
+            };
+            const ikon = {
+                sky: "bg-sky-100 text-sky-700",
+                violet: "bg-violet-100 text-violet-700",
+                amber: "bg-amber-100 text-amber-700"
+            };
+
+            return (
+                <article className={`${gaya[warna]} relative min-h-52 rounded-2xl border-2 p-5 transition-all duration-500 ${aktif ? "ring-8 shadow-xl md:-translate-y-2" : "shadow-sm"}`}>
+                    <div className="flex items-start justify-between gap-3">
+                        <span className={`${ikon[warna]} grid h-12 w-12 place-items-center rounded-2xl`}><Ikon size={25} aria-hidden="true" /></span>
+                        <span className="rounded-full bg-slate-100 px-2.5 py-1 text-[10px] font-extrabold tracking-wide text-slate-500">{label}</span>
+                    </div>
+                    <h4 className="mt-4 text-lg font-extrabold text-slate-900">{judul}</h4>
+                    <p className="text-sm font-bold text-slate-500">{padanan}</p>
+                    <p className="mt-3 text-sm leading-6 text-slate-600">{deskripsi}</p>
+                    {children}
+                </article>
+            );
+        }
+
+        function KartuKonsep({ data }) {
+            const [lihatKode, setLihatKode] = useState(false);
+            const Ikon = data.ikon;
+
+            return (
+                <article className={`${data.warnaBingkai} flex h-full flex-col overflow-hidden rounded-2xl border-2 bg-white shadow-lg shadow-slate-200/50 transition hover:-translate-y-1 hover:shadow-xl`}>
+                    <div className="p-6">
+                        <div className="flex items-start justify-between gap-3">
+                            <span className={`${data.warnaIkon} grid h-13 w-13 place-items-center rounded-2xl`}>
+                                <Ikon size={27} aria-hidden="true" />
+                            </span>
+                            <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-bold text-slate-500">{data.subjudul}</span>
+                        </div>
+                        <h3 className="mt-5 text-2xl font-extrabold text-slate-900">{data.judul}</h3>
+                    </div>
+
+                    <div className="flex flex-1 flex-col border-t border-slate-100 p-6">
+                        <div className="mb-5 grid grid-cols-2 rounded-xl bg-slate-100 p-1 text-xs font-bold" aria-label={`Pilihan tampilan ${data.judul}`}>
+                            <button type="button" onClick={() => setLihatKode(false)} className={`${!lihatKode ? "bg-white text-slate-900 shadow-sm" : "text-slate-500"} rounded-lg px-2 py-2.5 transition`}>Analogi</button>
+                            <button type="button" onClick={() => setLihatKode(true)} className={`${lihatKode ? "bg-slate-900 text-white shadow-sm" : "text-slate-500"} rounded-lg px-2 py-2.5 transition`}>Kode Sederhana</button>
+                        </div>
+
+                        {!lihatKode ? (
+                            <div className="flex flex-1 flex-col">
+                                <div className="rounded-2xl bg-slate-50 p-5">
+                                    <p className="text-xs font-extrabold uppercase tracking-wider text-slate-400">Di restoran ibarat</p>
+                                    <h4 className="mt-1 text-lg font-extrabold text-slate-900">{data.analogi}</h4>
+                                    <p className="mt-3 text-sm leading-6 text-slate-600">{data.deskripsi}</p>
+                                </div>
+                                <ul className="mt-5 space-y-3">
+                                    {data.poin.map((poin) => (
+                                        <li key={poin} className="flex gap-2.5 text-sm leading-6 text-slate-600">
+                                            <CheckCircle2 className="mt-0.5 shrink-0 text-emerald-500" size={18} aria-hidden="true" /> {poin}
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                        ) : (
+                            <div className="flex flex-1 flex-col">
+                                <div className="overflow-hidden rounded-2xl bg-slate-950 shadow-inner">
+                                    <div className="flex items-center gap-1.5 border-b border-slate-800 px-4 py-3" aria-hidden="true">
+                                        <i className="h-2.5 w-2.5 rounded-full bg-rose-400" />
+                                        <i className="h-2.5 w-2.5 rounded-full bg-amber-400" />
+                                        <i className="h-2.5 w-2.5 rounded-full bg-emerald-400" />
+                                    </div>
+                                    <pre className="min-h-36 overflow-x-auto p-5 text-sm leading-7"><code>{data.kode}</code></pre>
+                                </div>
+                                <div className="mt-4 flex gap-3 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-amber-900">
+                                    <Lightbulb className="mt-0.5 shrink-0" size={18} aria-hidden="true" />
+                                    <p><strong>Artinya:</strong> {data.artiKode}</p>
+                                </div>
+                            </div>
+                        )}
+
+                        <button type="button" onClick={() => setLihatKode(!lihatKode)} className="mt-6 inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-extrabold text-slate-700 transition hover:border-sky-300 hover:bg-sky-50 hover:text-sky-700">
+                            {lihatKode ? <BookOpen size={17} /> : <Code2 size={17} />}
+                            {lihatKode ? "Lihat Analogi" : "Lihat Kode Sederhana"}
+                        </button>
+                    </div>
+                </article>
+            );
+        }
+
+        function BagianPekerja() {
+            return (
+                <section id="pekerja" className="px-4 py-20 sm:px-6 md:py-28 lg:px-8">
+                    <div className="mx-auto max-w-7xl">
+                        <JudulBagian
+                            nomor="2"
+                            label="Kenalan dengan Pekerja Website"
+                            judul="Masing-Masing Punya Tugas"
+                            deskripsi="Website dinamis tercipta karena beberapa teknologi bekerja sama. Tekan tombol pada setiap kartu untuk berpindah dari analogi ke contoh kode."
+                        />
+                        <div className="grid gap-6 lg:grid-cols-3">
+                            {KONSEP.map((data) => <KartuKonsep key={data.id} data={data} />)}
+                        </div>
+                        <div className="mx-auto mt-8 flex max-w-3xl items-start gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 p-5 text-sm leading-6 text-emerald-900">
+                            <Lightbulb className="mt-0.5 shrink-0" size={21} aria-hidden="true" />
+                            <p><strong>Ingat:</strong> Kamu tidak perlu menghafal kodenya sekarang. Cukup pahami siapa yang menampilkan, siapa yang memproses, dan siapa yang menyimpan data.</p>
+                        </div>
+                    </div>
+                </section>
+            );
+        }
+
+        function BagianMySQL() {
+            const [mencari, setMencari] = useState(false);
+            const [ditemukan, setDitemukan] = useState(false);
+            const pewaktuCari = useRef(null);
+
+            useEffect(() => () => clearTimeout(pewaktuCari.current), []);
+
+            function cariData() {
+                setMencari(true);
+                setDitemukan(false);
+                clearTimeout(pewaktuCari.current);
+                pewaktuCari.current = setTimeout(() => {
+                    setMencari(false);
+                    setDitemukan(true);
+                }, 1200);
+            }
+
+            const catatan = ["Nama: Rani", "Nasi Goreng", "Rp18.000", "Meja 7", "Es Teh", "Lunas"];
+
+            return (
+                <section id="mysql" className="border-y border-violet-100 bg-gradient-to-b from-violet-50/70 to-white px-4 py-20 sm:px-6 md:py-28 lg:px-8">
+                    <div className="mx-auto max-w-7xl">
+                        <JudulBagian
+                            nomor="3"
+                            label="Mengapa Kita Butuh MySQL?"
+                            judul="Data Perlu Rumah yang Rapi"
+                            deskripsi="Menyimpan sedikit data mungkin terasa mudah. Ketika datanya ribuan, kita membutuhkan sistem yang dapat mengatur dan menemukannya kembali."
+                        />
+
+                        <div className="grid items-stretch gap-6 lg:grid-cols-2">
+                            <article className="overflow-hidden rounded-2xl border-2 border-rose-200 bg-white shadow-lg">
+                                <div className="border-b border-rose-100 bg-rose-50 p-6">
+                                    <div className="flex items-center gap-3">
+                                        <span className="grid h-11 w-11 place-items-center rounded-xl bg-rose-100 text-rose-700"><XCircle size={24} /></span>
+                                        <div>
+                                            <p className="text-xs font-extrabold uppercase tracking-wider text-rose-500">Tanpa database</p>
+                                            <h3 className="text-xl font-extrabold text-slate-900">Kamar Penuh Catatan</h3>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="relative min-h-80 overflow-hidden bg-[linear-gradient(135deg,#fff1f2,#fff)] p-7 pola-titik">
+                                    {catatan.map((isi, indeks) => (
+                                        <div
+                                            key={isi}
+                                            className="absolute rounded-lg border border-amber-200 bg-amber-100 px-3 py-2 text-xs font-bold text-amber-900 shadow-md"
+                                            style={{
+                                                left: `${10 + (indeks * 29) % 68}%`,
+                                                top: `${12 + (indeks * 37) % 68}%`,
+                                                transform: `rotate(${(indeks % 2 ? 1 : -1) * (7 + indeks * 2)}deg)`
+                                            }}
+                                        >
+                                            {isi}
+                                        </div>
+                                    ))}
+                                    <div className="absolute bottom-5 left-5 right-5 rounded-xl border border-rose-200 bg-white/90 p-4 text-sm leading-6 text-rose-800 shadow-sm backdrop-blur">
+                                        <strong>Sulit dicari:</strong> data tercecer, mudah hilang, dan dapat tertukar.
+                                    </div>
+                                </div>
+                            </article>
+
+                            <article className="overflow-hidden rounded-2xl border-2 border-emerald-200 bg-white shadow-lg">
+                                <div className="border-b border-emerald-100 bg-emerald-50 p-6">
+                                    <div className="flex items-center gap-3">
+                                        <span className="grid h-11 w-11 place-items-center rounded-xl bg-emerald-100 text-emerald-700"><Database size={24} /></span>
+                                        <div>
+                                            <p className="text-xs font-extrabold uppercase tracking-wider text-emerald-600">Dengan MySQL</p>
+                                            <h3 className="text-xl font-extrabold text-slate-900">Lemari Arsip Teratur</h3>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="min-h-80 bg-gradient-to-br from-emerald-50 to-white p-7">
+                                    <div className="mx-auto max-w-sm rounded-2xl border-4 border-emerald-800 bg-emerald-900 p-3 shadow-xl">
+                                        {["Pengguna", "Menu", "Transaksi"].map((laci) => (
+                                            <div key={laci} className={`${ditemukan && laci === "Menu" ? "translate-x-3 bg-amber-100 ring-4 ring-amber-300" : "bg-white"} mb-3 flex items-center justify-between rounded-xl p-4 transition-all duration-500 last:mb-0`}>
+                                                <span className="flex items-center gap-3 font-extrabold text-slate-800"><FolderOpen className="text-emerald-600" size={20} /> {laci}</span>
+                                                <span className="h-2 w-8 rounded-full bg-slate-200" />
+                                            </div>
+                                        ))}
+                                    </div>
+                                    <button type="button" onClick={cariData} disabled={mencari} className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-emerald-600 px-5 py-3.5 font-extrabold text-white shadow-lg shadow-emerald-100 transition hover:-translate-y-0.5 hover:bg-emerald-700 disabled:cursor-wait disabled:bg-emerald-400">
+                                        <Search className={mencari ? "animate-spin" : ""} size={19} />
+                                        {mencari ? "Sedang mencari data..." : "Cari Data “Nasi Goreng”"}
+                                    </button>
+                                    <p className={`${ditemukan ? "opacity-100" : "opacity-0"} mt-4 flex items-center justify-center gap-2 text-sm font-bold text-emerald-700 transition-opacity`} aria-live="polite">
+                                        <CheckCircle2 size={18} /> Data ditemukan di laci Menu!
+                                    </p>
+                                </div>
+                            </article>
+                        </div>
+
+                        <div className="mt-8 grid gap-4 sm:grid-cols-3">
+                            {[
+                                ["1", "Tabel", "Seperti satu lemari untuk jenis data tertentu."],
+                                ["2", "Baris", "Satu data lengkap, misalnya satu menu makanan."],
+                                ["3", "Kolom", "Bagian data, misalnya nama dan harga menu."]
+                            ].map(([nomor, judul, teks]) => (
+                                <div key={judul} className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+                                    <span className="grid h-8 w-8 place-items-center rounded-lg bg-violet-100 text-sm font-extrabold text-violet-700">{nomor}</span>
+                                    <h4 className="mt-3 font-extrabold text-slate-900">{judul}</h4>
+                                    <p className="mt-1 text-sm leading-6 text-slate-600">{teks}</p>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </section>
+            );
+        }
+
+        async function salinTeksPraktik(teks) {
+            if (navigator.clipboard && window.isSecureContext) {
+                await navigator.clipboard.writeText(teks);
+                return;
+            }
+
+            const areaTeks = document.createElement("textarea");
+            areaTeks.value = teks;
+            areaTeks.style.position = "fixed";
+            areaTeks.style.opacity = "0";
+            document.body.appendChild(areaTeks);
+            areaTeks.select();
+            document.execCommand("copy");
+            areaTeks.remove();
+        }
+
+        function BlokKodePraktik({ kode, label, onSalin, tersalin }) {
+            return (
+                <div className="overflow-hidden rounded-2xl border border-slate-700 bg-slate-950 shadow-xl">
+                    <div className="flex items-center justify-between gap-3 border-b border-slate-800 bg-slate-900 px-4 py-3">
+                        <div className="flex min-w-0 items-center gap-3">
+                            <span className="flex gap-1.5" aria-hidden="true">
+                                <i className="h-2.5 w-2.5 rounded-full bg-rose-400" />
+                                <i className="h-2.5 w-2.5 rounded-full bg-amber-400" />
+                                <i className="h-2.5 w-2.5 rounded-full bg-emerald-400" />
+                            </span>
+                            <span className="truncate font-mono text-xs font-bold text-slate-400">{label}</span>
+                        </div>
+                        <button type="button" onClick={onSalin} className={`${tersalin ? "border-emerald-700 bg-emerald-900 text-emerald-200" : "border-slate-700 bg-slate-800 text-slate-200 hover:bg-slate-700"} inline-flex shrink-0 items-center gap-2 rounded-lg border px-3 py-2 text-xs font-extrabold transition`}>
+                            {tersalin ? <Check size={15} /> : <Code2 size={15} />}
+                            {tersalin ? "Tersalin" : "Salin Kode"}
+                        </button>
+                    </div>
+                    <pre className="max-h-[430px] overflow-auto p-5 text-sm leading-7 text-slate-200"><code>{kode}</code></pre>
+                </div>
+            );
+        }
+
+        function KartuStudiKasus({ data }) {
+            const [tampilan, setTampilan] = useState("tantangan");
+            const [tersalin, setTersalin] = useState("");
+            const warna = {
+                sky: {
+                    kepala: "from-sky-500 to-cyan-500",
+                    lembut: "bg-sky-50 border-sky-200 text-sky-800",
+                    nomor: "text-sky-700 bg-sky-100",
+                    tombol: "bg-sky-600 hover:bg-sky-700 shadow-sky-100"
+                },
+                violet: {
+                    kepala: "from-violet-500 to-fuchsia-500",
+                    lembut: "bg-violet-50 border-violet-200 text-violet-800",
+                    nomor: "text-violet-700 bg-violet-100",
+                    tombol: "bg-violet-600 hover:bg-violet-700 shadow-violet-100"
+                },
+                emerald: {
+                    kepala: "from-emerald-500 to-teal-500",
+                    lembut: "bg-emerald-50 border-emerald-200 text-emerald-800",
+                    nomor: "text-emerald-700 bg-emerald-100",
+                    tombol: "bg-emerald-600 hover:bg-emerald-700 shadow-emerald-100"
+                }
+            }[data.warna];
+
+            async function salin(kode, jenis) {
+                try {
+                    await salinTeksPraktik(kode);
+                    setTersalin(jenis);
+                    setTimeout(() => setTersalin(""), 1800);
+                } catch {
+                    setTersalin("");
+                }
+            }
+
+            const tab = [
+                ["tantangan", "Tantangan", MousePointerClick],
+                ["petunjuk", "Petunjuk", Lightbulb],
+                ["solusi", "Solusi", CheckCircle2]
+            ];
+
+            return (
+                <article className="overflow-hidden rounded-[1.75rem] border border-slate-200 bg-white shadow-xl shadow-slate-200/60">
+                    <div className={`bg-gradient-to-r ${warna.kepala} p-6 text-white md:p-8`}>
+                        <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
+                            <div className="flex items-start gap-4">
+                                <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-white/20 text-lg font-extrabold ring-1 ring-white/30">{data.nomor}</span>
+                                <div>
+                                    <div className="flex flex-wrap items-center gap-2">
+                                        <span className="rounded-full bg-white/20 px-3 py-1 text-xs font-extrabold ring-1 ring-white/25">{data.tingkat}</span>
+                                        <span className="rounded-full bg-slate-950/20 px-3 py-1 text-xs font-bold">{data.konsep}</span>
+                                    </div>
+                                    <h3 className="mt-3 text-2xl font-extrabold tracking-tight md:text-3xl">{data.judul}</h3>
+                                </div>
+                            </div>
+                            <div className="flex shrink-0 items-center gap-2 rounded-xl bg-white/15 px-3 py-2 text-xs font-bold ring-1 ring-white/25">
+                                <Code2 size={16} /> {data.namaFile}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="border-b border-slate-200 bg-slate-50 p-2 sm:p-3">
+                        <div className="grid grid-cols-3 gap-1" role="tablist" aria-label={`Bagian studi kasus ${data.judul}`}>
+                            {tab.map(([id, label, Ikon]) => (
+                                <button
+                                    key={id}
+                                    type="button"
+                                    role="tab"
+                                    aria-selected={tampilan === id}
+                                    onClick={() => setTampilan(id)}
+                                    className={`${tampilan === id ? "bg-white text-slate-900 shadow-sm ring-1 ring-slate-200" : "text-slate-500 hover:bg-white/70 hover:text-slate-700"} inline-flex items-center justify-center gap-2 rounded-xl px-2 py-3 text-xs font-extrabold transition sm:text-sm`}
+                                >
+                                    <Ikon size={17} aria-hidden="true" />
+                                    {label}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+
+                    <div className="p-5 sm:p-7 md:p-8">
+                        {tampilan === "tantangan" && (
+                            <div role="tabpanel">
+                                <div className="grid gap-5 lg:grid-cols-[1fr_1.15fr]">
+                                    <div>
+                                        <div className={`${warna.lembut} rounded-2xl border p-5`}>
+                                            <p className="text-xs font-extrabold uppercase tracking-wider opacity-70">Cerita Kasus</p>
+                                            <p className="mt-2 text-sm font-semibold leading-7">{data.cerita}</p>
+                                        </div>
+                                        <div className="mt-5">
+                                            <h4 className="font-extrabold text-slate-900">Yang perlu kamu buat</h4>
+                                            <p className="mt-2 text-sm leading-7 text-slate-600">{data.tujuan}</p>
+                                        </div>
+                                        <ol className="mt-5 space-y-3">
+                                            {data.langkah.map((langkah, indeks) => (
+                                                <li key={langkah} className="flex gap-3 text-sm leading-6 text-slate-600">
+                                                    <span className={`${warna.nomor} grid h-7 w-7 shrink-0 place-items-center rounded-lg text-xs font-extrabold`}>{indeks + 1}</span>
+                                                    {langkah}
+                                                </li>
+                                            ))}
+                                        </ol>
+                                        <div className="mt-5 rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm leading-6 text-slate-600">
+                                            <strong className="text-slate-900">Contoh keluaran:</strong> {data.keluaran}
+                                        </div>
+                                    </div>
+                                    <BlokKodePraktik kode={data.kodeAwal} label={`Kode awal • ${data.namaFile}`} onSalin={() => salin(data.kodeAwal, "awal")} tersalin={tersalin === "awal"} />
+                                </div>
+                            </div>
+                        )}
+
+                        {tampilan === "petunjuk" && (
+                            <div role="tabpanel" className="mx-auto max-w-3xl">
+                                <div className="mb-6 text-center">
+                                    <span className="mx-auto grid h-14 w-14 place-items-center rounded-2xl bg-amber-100 text-amber-700"><Lightbulb size={28} /></span>
+                                    <h4 className="mt-4 text-xl font-extrabold text-slate-900">Coba satu petunjuk dahulu</h4>
+                                    <p className="mt-2 text-sm text-slate-500">Jangan langsung membuka solusi. Baca petunjuk dari atas ke bawah sesuai kebutuhan.</p>
+                                </div>
+                                <div className="space-y-3">
+                                    {data.petunjuk.map((petunjuk, indeks) => (
+                                        <div key={petunjuk} className="flex items-start gap-4 rounded-2xl border border-amber-200 bg-amber-50 p-5 text-sm leading-7 text-amber-900">
+                                            <span className="grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-amber-200 font-extrabold">{indeks + 1}</span>
+                                            <p>{petunjuk}</p>
+                                        </div>
+                                    ))}
+                                </div>
+                                <button type="button" onClick={() => setTampilan("tantangan")} className={`mt-6 inline-flex w-full items-center justify-center gap-2 rounded-xl ${warna.tombol} px-5 py-3.5 font-extrabold text-white shadow-lg transition`}>
+                                    <ArrowRight className="rotate-180" size={18} /> Kembali Mengerjakan
+                                </button>
+                            </div>
+                        )}
+
+                        {tampilan === "solusi" && (
+                            <div role="tabpanel">
+                                <div className="mb-5 flex items-start gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 p-5 text-sm leading-7 text-emerald-900">
+                                    <CheckCircle2 className="mt-0.5 shrink-0" size={22} />
+                                    <p><strong>Bandingkan, jangan hanya menyalin.</strong> Perhatikan letak variabel, tanda titik koma, dan urutan logikanya. Setelah paham, ubah sedikit datanya lalu jalankan kembali.</p>
+                                </div>
+                                <BlokKodePraktik kode={data.solusi} label={`Contoh solusi • ${data.namaFile}`} onSalin={() => salin(data.solusi, "solusi")} tersalin={tersalin === "solusi"} />
+                            </div>
+                        )}
+                    </div>
+                </article>
+            );
+        }
+
+        function BagianPraktikPHP() {
+            return (
+                <section id="praktik" className="border-y border-emerald-100 bg-gradient-to-b from-emerald-50/60 via-white to-sky-50/50 px-4 py-20 sm:px-6 md:py-28 lg:px-8">
+                    <div className="mx-auto max-w-7xl">
+                        <JudulBagian
+                            nomor="4"
+                            label="Praktik PHP Langsung"
+                            judul="Tiga Studi Kasus untuk Dicoba"
+                            deskripsi="Mulai dari menampilkan teks, lanjut ke keputusan sederhana, lalu membuat kalkulator. Kerjakan berurutan agar setiap konsep terasa lebih mudah."
+                        />
+
+                        <div className="mb-8 grid gap-4 rounded-[1.75rem] border border-slate-200 bg-white p-5 shadow-lg sm:grid-cols-3 md:p-7">
+                            {[
+                                ["1", "Nyalakan Apache", "Buka XAMPP lalu tekan Start pada Apache."],
+                                ["2", "Simpan Berkas", "Buat berkas .php di dalam folder htdocs."],
+                                ["3", "Buka di Browser", "Ketik localhost/nama-file.php pada alamat Browser."]
+                            ].map(([nomor, judul, teks], indeks) => (
+                                <div key={judul} className="relative flex gap-3 rounded-2xl bg-slate-50 p-4">
+                                    <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-slate-900 text-sm font-extrabold text-white">{nomor}</span>
+                                    <div>
+                                        <h3 className="text-sm font-extrabold text-slate-900">{judul}</h3>
+                                        <p className="mt-1 text-xs leading-5 text-slate-600">{teks}</p>
+                                    </div>
+                                    {indeks < 2 && <ChevronRight className="absolute -right-3 top-1/2 z-10 hidden -translate-y-1/2 text-slate-300 sm:block" size={20} aria-hidden="true" />}
+                                </div>
+                            ))}
+                        </div>
+
+                        <div className="space-y-8">
+                            {STUDI_KASUS_PHP.map((data) => <KartuStudiKasus key={data.nomor} data={data} />)}
+                        </div>
+
+                        <div className="mx-auto mt-8 flex max-w-3xl items-start gap-3 rounded-2xl border border-sky-200 bg-sky-50 p-5 text-sm leading-7 text-sky-900">
+                            <Lightbulb className="mt-0.5 shrink-0" size={21} />
+                            <p><strong>Cara belajar yang disarankan:</strong> jalankan kode awal, ubah satu bagian, muat ulang Browser, lalu amati hasilnya. Kesalahan kecil adalah bagian normal dari proses belajar.</p>
+                        </div>
+                    </div>
+                </section>
+            );
+        }
+
+        function KuisAlur() {
+            const alurBenar = ["Browser", "PHP", "MySQL", "PHP", "Browser"];
+            const [jawaban, setJawaban] = useState([]);
+            const [pesan, setPesan] = useState("Mulai dengan memilih bagian yang mengirim permintaan.");
+            const [salah, setSalah] = useState(false);
+            const [berhasil, setBerhasil] = useState(false);
+
+            const pilihan = [
+                ["Browser", Globe2, "bg-sky-100 text-sky-700 border-sky-200 hover:bg-sky-200"],
+                ["PHP", ChefHat, "bg-violet-100 text-violet-700 border-violet-200 hover:bg-violet-200"],
+                ["MySQL", Database, "bg-amber-100 text-amber-700 border-amber-200 hover:bg-amber-200"]
+            ];
+
+            function pilih(nama) {
+                if (berhasil) return;
+                const yangDiharapkan = alurBenar[jawaban.length];
+
+                if (nama !== yangDiharapkan) {
+                    setSalah(true);
+                    setPesan(jawaban.length === 0
+                        ? "Belum tepat. Siapa yang pertama kali meminta halaman?"
+                        : `Belum tepat. Setelah ${jawaban[jawaban.length - 1]}, coba pikirkan ke mana proses berikutnya pergi.`);
+                    setTimeout(() => setSalah(false), 450);
+                    return;
+                }
+
+                const jawabanBaru = [...jawaban, nama];
+                setJawaban(jawabanBaru);
+                setSalah(false);
+
+                if (jawabanBaru.length === alurBenar.length) {
+                    setBerhasil(true);
+                    setPesan("Hebat! Kamu berhasil menyusun alur web dinamis dengan tepat.");
+                } else {
+                    setPesan("Benar! Pilih langkah berikutnya.");
+                }
+            }
+
+            function hapusTerakhir() {
+                if (!jawaban.length || berhasil) return;
+                setJawaban(jawaban.slice(0, -1));
+                setPesan("Langkah terakhir dihapus. Silakan lanjutkan.");
+            }
+
+            function ulangi() {
+                setJawaban([]);
+                setBerhasil(false);
+                setSalah(false);
+                setPesan("Mulai dengan memilih bagian yang mengirim permintaan.");
+            }
+
+            const konfeti = useMemo(() => Array.from({ length: 38 }, (_, indeks) => ({
+                id: indeks,
+                kiri: (indeks * 37) % 100,
+                tunda: (indeks % 9) * 0.08,
+                warna: ["#38bdf8", "#8b5cf6", "#f59e0b", "#10b981", "#fb7185"][indeks % 5]
+            })), []);
+
+            return (
+                <section id="kuis" className="relative overflow-hidden px-4 py-20 sm:px-6 md:py-28 lg:px-8">
+                    <div className="mx-auto max-w-5xl">
+                        <JudulBagian
+                            nomor="5"
+                            label="Mini Kuis Interaktif"
+                            judul="Susun Alur Web Dinamis"
+                            deskripsi="Tanpa menulis kode. Tekan tombol dalam urutan yang benar untuk menyusun perjalanan data dari awal hingga halaman tampil."
+                        />
+
+                        <div className={`${salah ? "guncang" : ""} relative overflow-hidden rounded-[2rem] border-2 ${berhasil ? "border-emerald-300 bg-emerald-50" : "border-slate-200 bg-white"} p-5 shadow-2xl shadow-slate-200/70 transition-colors sm:p-8 md:p-10`}>
+                            {berhasil && (
+                                <div className="pointer-events-none absolute inset-x-0 top-0 z-20 h-full overflow-hidden" aria-hidden="true">
+                                    {konfeti.map((item) => (
+                                        <i key={item.id} className="konfeti" style={{ left: `${item.kiri}%`, animationDelay: `${item.tunda}s`, backgroundColor: item.warna }} />
+                                    ))}
+                                </div>
+                            )}
+
+                            <div className="relative z-10">
+                                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                                    <div>
+                                        <p className="text-sm font-bold text-slate-500">Kemajuan</p>
+                                        <p className="mt-1 text-2xl font-extrabold text-slate-900">{jawaban.length} dari 5 langkah</p>
+                                    </div>
+                                    <div className="h-3 w-full overflow-hidden rounded-full bg-slate-100 sm:w-56">
+                                        <div className={`${berhasil ? "bg-emerald-500" : "bg-sky-500"} h-full rounded-full transition-all duration-500`} style={{ width: `${(jawaban.length / 5) * 100}%` }} />
+                                    </div>
+                                </div>
+
+                                <div className="mt-8 grid grid-cols-5 gap-2" aria-label="Jawaban alur web">
+                                    {alurBenar.map((_, indeks) => {
+                                        const isi = jawaban[indeks];
+                                        const Ikon = isi === "Browser" ? Globe2 : isi === "PHP" ? ChefHat : isi === "MySQL" ? Database : null;
+                                        return (
+                                            <React.Fragment key={indeks}>
+                                                <div className={`${isi ? "border-sky-300 bg-sky-50 text-sky-800" : "border-dashed border-slate-300 bg-slate-50 text-slate-400"} col-span-1 flex min-h-24 flex-col items-center justify-center rounded-xl border-2 p-2 text-center transition-all sm:min-h-28 sm:rounded-2xl`}>
+                                                    {Ikon ? <Ikon size={22} aria-hidden="true" /> : <span className="grid h-7 w-7 place-items-center rounded-full bg-white text-xs font-extrabold shadow-sm">{indeks + 1}</span>}
+                                                    <span className="mt-2 text-[10px] font-extrabold sm:text-sm">{isi || "Kosong"}</span>
+                                                </div>
+                                            </React.Fragment>
+                                        );
+                                    })}
+                                </div>
+
+                                <div className="mt-7 rounded-2xl bg-slate-50 p-5">
+                                    <p className="mb-4 text-center text-sm font-bold text-slate-600">Pilih langkah berikutnya:</p>
+                                    <div className="grid gap-3 sm:grid-cols-3">
+                                        {pilihan.map(([nama, Ikon, gaya]) => (
+                                            <button key={nama} type="button" onClick={() => pilih(nama)} disabled={berhasil} className={`${gaya} flex items-center justify-center gap-2 rounded-2xl border-2 px-4 py-4 font-extrabold transition hover:-translate-y-1 disabled:cursor-not-allowed disabled:opacity-60`}>
+                                                <Ikon size={20} aria-hidden="true" /> {nama}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                <div className={`${berhasil ? "border-emerald-200 bg-emerald-100 text-emerald-900" : salah ? "border-rose-200 bg-rose-50 text-rose-800" : "border-sky-100 bg-sky-50 text-sky-800"} mt-5 flex min-h-20 items-center gap-3 rounded-2xl border p-4 transition-colors`} aria-live="polite">
+                                    {berhasil ? <CheckCircle2 className="shrink-0" size={24} /> : salah ? <XCircle className="shrink-0" size={24} /> : <HelpCircle className="shrink-0" size={24} />}
+                                    <p className="text-sm font-bold leading-6">{pesan}</p>
+                                </div>
+
+                                <div className="mt-5 flex flex-col justify-center gap-3 sm:flex-row">
+                                    <button type="button" onClick={hapusTerakhir} disabled={!jawaban.length || berhasil} className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-5 py-3 text-sm font-extrabold text-slate-600 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40">
+                                        <Undo2 size={17} /> Hapus Langkah Terakhir
+                                    </button>
+                                    <button type="button" onClick={ulangi} className="inline-flex items-center justify-center gap-2 rounded-xl bg-slate-900 px-5 py-3 text-sm font-extrabold text-white transition hover:bg-sky-700">
+                                        <RotateCcw size={17} /> Mulai Ulang
+                                    </button>
+                                </div>
+
+                                {berhasil && (
+                                    <div className="mt-8 rounded-2xl border border-emerald-200 bg-white p-6 text-center shadow-lg">
+                                        <Sparkles className="mx-auto text-amber-500" size={34} aria-hidden="true" />
+                                        <h3 className="mt-3 text-2xl font-extrabold text-slate-900">Kamu sudah memahami alurnya!</h3>
+                                        <p className="mx-auto mt-2 max-w-xl text-sm leading-6 text-slate-600">
+                                            Browser meminta, PHP memproses, MySQL memberikan data, PHP menyusun hasil, lalu Browser menampilkannya.
+                                        </p>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            );
+        }
+
+        function App() {
+            useEffect(() => {
+                // Target hash baru tersedia setelah React selesai merender seluruh bagian.
+                // Penundaan satu bingkai memastikan tautan langsung seperti #praktik tetap bergulir tepat.
+                const target = window.location.hash;
+                if (target) {
+                    requestAnimationFrame(() => document.querySelector(target)?.scrollIntoView());
+                }
+            }, []);
+
+            return (
+                <>
+                    <Navigasi />
+                    <main>
+                        <Hero />
+                        <SimulasiRestoran />
+                        <BagianPekerja />
+                        <BagianMySQL />
+                        <BagianPraktikPHP />
+                        <KuisAlur />
+                    </main>
+                    <footer className="border-t border-slate-200 bg-slate-950 px-4 py-10 text-center text-slate-300">
+                        <div className="mx-auto flex max-w-4xl flex-col items-center">
+                            <span className="grid h-12 w-12 place-items-center rounded-2xl bg-gradient-to-br from-sky-500 to-violet-500 text-white"><Code2 size={23} /></span>
+                            <p className="mt-4 font-extrabold text-white">Belajar web dimulai dari memahami alurnya.</p>
+                            <p className="mt-2 text-sm text-slate-400">Sekarang kamu sudah tahu apa yang terjadi di balik layar sebuah website.</p>
+                            <a href="#awal" className="mt-6 inline-flex items-center gap-2 rounded-xl border border-slate-700 px-4 py-2.5 text-sm font-bold transition hover:border-sky-500 hover:text-sky-300">
+                                Kembali ke Atas <ArrowDown className="rotate-180" size={16} />
+                            </a>
+                        </div>
+                    </footer>
+                </>
+            );
+        }
+
+        createRoot(document.getElementById("root")).render(<App />);
+    </script>
+</body>
+</html>
